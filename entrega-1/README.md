@@ -3,8 +3,10 @@
 ### Tech Stack
 
 - Docker
+- Docker Compose
+- RabbitMQ
 - Java
-  - Spring Boot
+- Java Spring Boot
 
 ### Cliente
 
@@ -12,17 +14,19 @@ A princípio, não será desenvolvido um cliente, apenas o servidor e os disposi
 
 ### Servidor
 
-O servidor será desenvolvido utilizando Java com Spring Boot, para comportar a API RESTful que será disponibilizada para os clientes e dispositivos inteligentes. O servidor será executado em um contêiner Docker e terá intercomunicação simulada com os dispositivos inteligentes por meio do `docker-compose`.
+Para o servidor, será desenvolvida uma API RESTful utilizando Java Spring Boot, de modo a tornar possível a comunicação entre o cliente e o servidor.
+
+O servidor terá endpoints para realizar ações como listar e mandar ações dispositivos inteligentes e listar, criar, editar e apagar ambientes, um endpoint de registro para os dispositivos inteligentes e será responsável por guardar informações de estado dos dispositivos inteligentes e ambientes.
+
+A comunicação com os dispositivos inteligentes será feita utilizando RabbitMQ, onde o servidor será o publisher e os dispositivos inteligentes serão os consumers, cada dispositivo inicialmente ser registrará no servidor, informando seu ID e suas ações, e as seguintes comunicações do servidor com o dispositivo serão feitas através de mensagens enviadas pelo RabbitMQ.
 
 ### Dispositivos inteligentes
 
-Cada dispositivo inteligente será desenvolvido utilizando Java com Spring Boot, para comportar a API RESTful que será disponibilizada para o servidor. Os dispositivos inteligentes serão executados em contêineres Docker.
+Para os dispositivos inteligentes será desenvolvido em Java uma aplicação que fará a comunicação com o servidor por meio de RabbitMQ, onde o dispositivo inicalmente enviará para o servidor uma mensagem de registro para um endpoint e recebendo uma mensagem de sucesso continuará a comunicação com o servidor através do RabbitMQ esperando receber mensagens com ações a executar.
 
 ### Comunicação - Servidor / Dispositivos inteligentes
 
-A comunição entre o servidor e os dispositivos inteligentes será feita utilizando APIs RESTful. Para que um dispositivo inteligente possa se comunicar com o servidor, ele deve primeiramente realizar um registro, acessando o endpoint `/register` do servidor, onde ele passará as informações de tipo de dispositivo, e operações que ele é capaz de realizar, para cada operação será passado o nome da operação e o endpoint de acesso para realizar a operação.
-
-Para que o dispositivo possa encontrar o servidor deve ser informado o endereço IP do servidor e porta de acesso ao inicializar o dispositivo. Para que o servidor possa enviar requisições ao dispositivo, ao realizar o registro será persistido o endereço IP e porta do dispositivo.
+A comunicação entre servidor e dispositivos inteligentes será realizada por meio do RabbitMQ, sendo o servidor o publisher e os dispositivos inteligentes os consumers. O dispositivo inteligente encontrará o servidor através do nome do container que o servidor estará rodando no Docker Compose.
 
 ### Comunicação - Cliente / Servidor
 
