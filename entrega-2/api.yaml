@@ -1,0 +1,231 @@
+openapi: "3.0.2"
+info:
+  title: Smart Home API
+  version: "1.0"
+  description: API for making a Smart Home System
+servers:
+  - url: "/v1"
+paths:
+  /register:
+    post:
+      summary: Register a new IoT device
+      description: Register a new IoT device
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                type:
+                  type: string
+                  description: Type of the device
+                  enum: [curtain, air-conditioner, tv, sound-system, light]
+                id:
+                  type: number
+                  description: Unique identifier of the device
+                  example: 1234
+                operations:
+                  type: array
+                  description: List of operations supported by the device
+                  example:
+                    [
+                      open,
+                      close,
+                      setTemperature,
+                      setVolume,
+                      setChannel,
+                      turnOn,
+                      turnOff,
+                    ]
+      responses:
+        "201":
+          description: Device registered successfully
+        "409":
+          description: ID already registered
+        "400":
+          description: Invalid request body
+  /devices:
+    summary: Get all registered devices
+    description: Get all registered devices
+    get:
+      responses:
+        "200":
+          description: List of registered devices
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    type:
+                      type: string
+                      description: Type of the device
+                      enum: [curtain, air-conditioner, tv, sound-system, light]
+                    id:
+                      type: number
+                      description: Unique identifier of the device
+                      example: 1234
+                    operations:
+                      type: array
+                      description: List of operations supported by the device
+                      example:
+                        [
+                          open,
+                          close,
+                          setTemperature,
+                          setVolume,
+                          setChannel,
+                          turnOn,
+                          turnOff,
+                        ]
+        "404":
+          description: No devices registered
+  /devices/{id}:
+    summary: Device handling
+    description: Device handling
+    parameters:
+      - name: id
+        in: path
+        description: Unique identifier of the device
+        required: true
+        schema:
+          type: number
+    get:
+      summary: Get device information
+      description: Get device information
+      responses:
+        "200":
+          description: Device found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  type:
+                    type: string
+                    description: Type of the device
+                    enum: [curtain, air-conditioner, tv, sound-system, light]
+                  id:
+                    type: number
+                    description: Unique identifier of the device
+                    example: 1234
+                  operations:
+                    type: array
+                    description: List of operations supported by the device
+                    example:
+                      [
+                        open,
+                        close,
+                        setTemperature,
+                        setVolume,
+                        setChannel,
+                        turnOn,
+                        turnOff,
+                      ]
+        "404":
+          description: Device not found
+    put:
+      summary: Update device status
+      description: Update device status
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                operation:
+                  type: string
+                  description: Operation to be performed
+                  enum:
+                    [
+                      open,
+                      close,
+                      setTemperature,
+                      setVolume,
+                      setChannel,
+                      turnOn,
+                      turnOff,
+                    ]
+                value:
+                  type: number
+                  description: Value to be set
+                  example: 20
+      responses:
+        "200":
+          description: Device updated successfully
+        "404":
+          description: Device not found
+        "400":
+          description: Invalid request body
+  /rooms:
+    summary: Get all registered rooms
+    description: Get all registered rooms
+    get:
+      responses:
+        "200":
+          description: List of registered rooms
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: string
+                  description: Name of the room
+                  example: Kitchen
+        "404":
+          description: No rooms registered
+  /rooms/{name}:
+    summary: Room handling
+    description: Room handling
+    parameters:
+      - name: name
+        in: path
+        description: Name of the room
+        required: true
+        schema:
+          type: string
+    get:
+      summary: Get room information
+      description: Get room information
+      responses:
+        "200":
+          description: Room found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  name:
+                    type: string
+                    description: Name of the room
+                    example: Kitchen
+                  devices:
+                    type: array
+                    description: List of devices in the room
+                    example: [1234, 5678]
+        "404":
+          description: Room not found
+    put:
+      summary: Update room devices
+      description: Update room devices
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: array
+              description: List of devices to be added to the room
+              items:
+                type: number
+                description: Unique identifier of the device
+                example: 1234
+      responses:
+        "200":
+          description: Room updated successfully
+        "404":
+          description: Room not found
+        "400":
+          description: Invalid request body
