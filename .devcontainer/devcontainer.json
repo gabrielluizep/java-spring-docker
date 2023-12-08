@@ -10,7 +10,11 @@
       "installMaven": "false",
       "installGradle": "true"
     },
-    "ghcr.io/swift-server-community/swift-devcontainer-features/sqlite:1": {}
+    "ghcr.io/swift-server-community/swift-devcontainer-features/sqlite:1": {},
+    "ghcr.io/devcontainers/features/docker-in-docker": {
+      "version": "latest",
+      "dockerDashComposeVersion": "v2"
+    }
   },
   // Use 'forwardPorts' to make a list of ports inside the container available locally.
   // "forwardPorts": [],
