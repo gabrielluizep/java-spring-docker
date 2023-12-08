@@ -2,8 +2,6 @@ package device;
 
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.util.HashMap;
-import java.util.Map;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
@@ -43,25 +41,7 @@ public class App {
 
         try {
             URL url = new URL(server_url + REGISTER_ROUTE);
-            HttpURLConnection con = (HttpURLConnection) url.openConnection();
-            con.setRequestMethod("POST");
-
-            JsonObject json = new JsonObject();
-            json.addProperty("type", device.getDeviceType());
-            json.addProperty("id", device.getId());
-            json.addProperty("operations", new Gson().toJson(device.getOperations()));
-
-            con.setDoOutput(true);
-            con.getOutputStream().write(json.toString().getBytes("UTF-8"));
-
-            int status = con.getResponseCode();
-            System.err.println(con);
-
-            if (status == 200) {
-                System.out.println("Device registered successfully");
-            } else {
-                System.err.println(status + " Device registration failed");
-            }
+            device.register(url);
         } catch (Exception e) {
             System.err.println("Device registration failed");
             System.err.println(e);
