@@ -1,23 +1,21 @@
 package eng.tele.std.controllers;
 
+import java.util.Map;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.Map;
-
 @RestController
-@RequestMapping(path = "/register")
+@RequestMapping(path = "/register", consumes = "application/json")
 public class RegisterController {
-  // print everything in the body of the request
   @PostMapping
-  public ResponseEntity<String> register(@RequestParam int id) {
-    System.out.println(id);
+  public ResponseEntity<String> register(@RequestBody Map<String, String> params) {
+    System.out.println(params);
 
-    return new ResponseEntity<String>("", HttpStatus.OK);
+    return new ResponseEntity<String>("response text", HttpStatus.OK);
   }
-
 }

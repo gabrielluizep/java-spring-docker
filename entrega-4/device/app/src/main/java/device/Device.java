@@ -68,10 +68,6 @@ public class Device {
           .POST(HttpRequest.BodyPublishers.ofString(json.toString()))
           .build();
 
-      client.sendAsync(request, BodyHandlers.ofString())
-          .thenApply(HttpResponse::body)
-          .thenAccept(System.out::println);
-
       HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
       int status = response.statusCode();
 
