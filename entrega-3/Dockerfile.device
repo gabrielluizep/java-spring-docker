@@ -3,7 +3,7 @@ FROM gradle:6.8.3-jdk11
 RUN mkdir /device
 WORKDIR /device
 
-COPY ../entrega-4/device /device
+COPY entrega-4/device /device
 
 EXPOSE $PORT
 
