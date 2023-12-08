@@ -1,0 +1,47 @@
+services:
+  server:
+    container_name: server
+    build: 
+      context: Dockerfile.server
+      args:
+        - "PORT=8080"
+  curtain:
+    container_name: curtain
+    build: 
+      context: Dockerfile.device
+      args:
+        - "PORT=8080"
+        - "SERVER_URL=http://server:8080"
+        - "DEVICE_TYPE=curtain"
+  air-conditioner:
+    container_name: air-conditioner
+    build: 
+      context: Dockerfile.device
+      args:
+        - "PORT=8080"
+        - "SERVER_URL=http://server:8080"
+        - "DEVICE_TYPE=air-conditioner"
+  tv:
+    container_name: tv
+    build: 
+      context: Dockerfile.tv
+      args:
+        - "PORT=8080"
+        - "SERVER_URL=http://server:8080"
+        - "DEVICE_TYPE=tv"
+  sound-system:
+    container_name: sound-system
+    build: 
+      context: Dockerfile.device
+      args:
+        - "PORT=8080"
+        - "SERVER_URL=http://server:8080"
+        - "DEVICE_TYPE=sound-system"
+  light:
+    container_name: light
+    build: 
+      context: Dockerfile.device
+      args:
+        - "PORT=8080"
+        - "SERVER_URL=http://server:8080"
+        - "DEVICE_TYPE=light"
