@@ -176,6 +176,53 @@ paths:
                   example: Kitchen
         "404":
           description: No rooms registered
+    post:
+      summary: Create room
+      description: Create a new room
+      tags:
+        - rooms
+      parameters:
+        - name: name
+          in: query
+          description: Name of the room
+          required: true
+          schema:
+            type: string
+            example: Kitchen
+        - name: devices
+          in: query
+          description: List of devices to be added to the room
+          required: false
+          schema:
+            type: array
+            items:
+              type: number
+              description: Unique identifier of the device
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  description: Name of the room
+                  example: Kitchen
+                devices:
+                  type: array
+                  description: List of devices to be added to the room
+                  items:
+                    type: number
+                    description: Unique identifier of the device
+                    example: 1234
+      responses:
+        "201":
+          description: Room created successfully
+        "409":
+          description: Room already registered
+        "400":
+          description: Invalid request body
   /rooms/{name}:
     summary: Room handling
     description: Room handling
