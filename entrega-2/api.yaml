@@ -5,11 +5,42 @@ info:
   description: API for making a Smart Home System
 servers:
   - url: "/v1"
+# add tag
+tags:
+  - name: IoT
+    description: IoT devices
+  - name: devices
+    description: Device handling
+  - name: rooms
+    description: Room handling
 paths:
   /register:
     post:
       summary: Register a new IoT device
-      description: Register a new IoT device
+      description: For starting the communication with the API, the device must be registered, then it can be accessed by its ID within the application
+      tags:
+        - IoT
+      parameters:
+        - name: type
+          in: query
+          description: Type of the device
+          required: true
+          schema:
+            type: string
+            $ref: "#/components/schemas/deviceType"
+        - name: id
+          in: query
+          description: Unique identifier of the device
+          required: true
+          schema:
+            type: number
+            example: 1234
+        - name: operations
+          in: query
+          description: List of operations supported by the device
+          required: true
+          schema:
+            $ref: "#/components/schemas/operations"
       requestBody:
         required: true
         content:
@@ -28,16 +59,7 @@ paths:
                 operations:
                   type: array
                   description: List of operations supported by the device
-                  example:
-                    [
-                      open,
-                      close,
-                      setTemperature,
-                      setVolume,
-                      setChannel,
-                      turnOn,
-                      turnOff,
-                    ]
+                  example: [open, close]
       responses:
         "201":
           description: Device registered successfully
@@ -49,6 +71,10 @@ paths:
     summary: Get all registered devices
     description: Get all registered devices
     get:
+      summary: Get all registered devices
+      description: Get all registered devices
+      tags:
+        - devices
       responses:
         "200":
           description: List of registered devices
@@ -56,30 +82,16 @@ paths:
             application/json:
               schema:
                 type: array
-                items:
-                  type: object
-                  properties:
-                    type:
-                      type: string
-                      description: Type of the device
-                      enum: [curtain, air-conditioner, tv, sound-system, light]
-                    id:
-                      type: number
-                      description: Unique identifier of the device
-                      example: 1234
-                    operations:
-                      type: array
-                      description: List of operations supported by the device
-                      example:
-                        [
-                          open,
-                          close,
-                          setTemperature,
-                          setVolume,
-                          setChannel,
-                          turnOn,
-                          turnOff,
-                        ]
+                $ref: "#/components/schemas/device"
+              example:
+                [
+                  { type: curtain, id: 1234, operations: [open, close] },
+                  {
+                    type: air-conditioner,
+                    id: 5678,
+                    operations: [setTemperature, turnOn, turnOff],
+                  },
+                ]
         "404":
           description: No devices registered
   /devices/{id}:
@@ -94,41 +106,24 @@ paths:
           type: number
     get:
       summary: Get device information
-      description: Get device information
+      description: Get information from a specific device
+      tags:
+        - devices
       responses:
         "200":
           description: Device found
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  type:
-                    type: string
-                    description: Type of the device
-                    enum: [curtain, air-conditioner, tv, sound-system, light]
-                  id:
-                    type: number
-                    description: Unique identifier of the device
-                    example: 1234
-                  operations:
-                    type: array
-                    description: List of operations supported by the device
-                    example:
-                      [
-                        open,
-                        close,
-                        setTemperature,
-                        setVolume,
-                        setChannel,
-                        turnOn,
-                        turnOff,
-                      ]
+                $ref: "#/components/schemas/device"
+                example: { type: curtain, id: 1234, operations: [open, close] }
         "404":
           description: Device not found
     put:
       summary: Update device status
-      description: Update device status
+      description: Use one of the supported operations to update the device status
+      tags:
+        - devices
       requestBody:
         required: true
         content:
@@ -164,6 +159,10 @@ paths:
     summary: Get all registered rooms
     description: Get all registered rooms
     get:
+      summary: Get all registered rooms
+      description: Get all registered rooms
+      tags:
+        - rooms
       responses:
         "200":
           description: List of registered rooms
@@ -189,7 +188,9 @@ paths:
           type: string
     get:
       summary: Get room information
-      description: Get room information
+      description: Get all devices in a specific room
+      tags:
+        - rooms
       responses:
         "200":
           description: Room found
@@ -210,22 +211,79 @@ paths:
           description: Room not found
     put:
       summary: Update room devices
-      description: Update room devices
+      description: Update the list of devices connected to a specific room, when the propertie of the query 'devices' is set it updates the list of devices, when the propertie of the query 'power' is set it updates the power status of the room
+      tags:
+        - rooms
+      parameters:
+        - name: power
+          in: query
+          description: Power status of the room
+          required: false
+          schema:
+            type: boolean
+            example: true
+        - name: devices
+          in: query
+          description: List of devices to be added to the room
+          required: false
+          schema:
+            type: array
+            items:
+              type: number
+              description: Unique identifier of the device
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              type: array
-              description: List of devices to be added to the room
-              items:
-                type: number
-                description: Unique identifier of the device
-                example: 1234
+              type: object
+              properties:
+                power:
+                  type: boolean
+                  description: Power status of the room
+                  example: true
       responses:
         "200":
-          description: Room updated successfully
+          description: Room devices updated successfully
         "404":
           description: Room not found
         "400":
           description: Invalid request body
+    delete:
+      summary: Delete room
+      description: Delete room
+      tags:
+        - rooms
+      responses:
+        "200":
+          description: Room deleted successfully
+        "404":
+          description: Room not found
+components:
+  schemas:
+    deviceType:
+      type: string
+      description: Type of the device
+      enum: [curtain, air-conditioner, tv, sound-system, light]
+    operations:
+      type: array
+      description: List of operations supported by the device
+      enum:
+        [open, close, setTemperature, setVolume, setChannel, turnOn, turnOff]
+    device:
+      type: object
+      properties:
+        type:
+          type: string
+          description: Type of the device
+          $ref: "#/components/schemas/deviceType"
+          example: curtain
+        id:
+          type: number
+          description: Unique identifier of the device
+          example: 1234
+        operations:
+          type: array
+          description: List of operations supported by the device
+          $ref: "#/components/schemas/operations"
+          example: [open, close]
