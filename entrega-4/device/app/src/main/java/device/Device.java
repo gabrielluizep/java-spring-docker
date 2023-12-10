@@ -1,17 +1,28 @@
 package device;
 
+import java.io.IOException;
 import java.net.URL;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
-import java.net.http.HttpResponse.BodyHandlers;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import com.rabbitmq.client.AMQP;
+import com.rabbitmq.client.Channel;
+import com.rabbitmq.client.Connection;
+import com.rabbitmq.client.ConnectionFactory;
+import com.rabbitmq.client.Consumer;
+import com.rabbitmq.client.DefaultConsumer;
+import com.rabbitmq.client.Envelope;
 
 public class Device {
   private String device_type;
-  private String[] operations;
+  private List<String> operations;
   private int id;
   private boolean isRegistered;
 
@@ -25,7 +36,7 @@ public class Device {
     return this.device_type;
   }
 
-  public String[] getOperations() {
+  public List<String> getOperations() {
     return this.operations;
   }
 
@@ -58,9 +69,11 @@ public class Device {
       JsonObject json = new JsonObject();
       json.addProperty("type", this.getDeviceType());
       json.addProperty("id", this.getId());
-      json.addProperty("operations", new Gson().toJson(this.getOperations()));
-
-      System.out.println(json.toString());
+      JsonArray operationsArray = new JsonArray();
+      for (String operation : operations) {
+        operationsArray.add(operation);
+      }
+      json.add("operations", operationsArray);
 
       HttpRequest request = HttpRequest.newBuilder()
           .uri(url.toURI())
@@ -81,11 +94,32 @@ public class Device {
                   " and operations " + String.join(", ", this.getOperations()) +
                   " isRegistered: " + this.isRegistered());
 
+          // setup rabitmq
+          ConnectionFactory factory = RabbitMqConnection.getConnectionFactory();
+          Connection connection = factory.newConnection();
+          Channel channel = connection.createChannel();
+
+          channel.queueDeclare("device-" + this.getId(), false, false, false, null);
+          System.out.println(" [*] Waiting for messages. To exit press CTRL+C");
+
+          Consumer consumer = new DefaultConsumer(channel) {
+            @Override
+            public void handleDelivery(
+                String consumerTag,
+                Envelope envelope,
+                AMQP.BasicProperties properties,
+                byte[] body)
+                throws IOException {
+              String message = new String(body, "UTF-8");
+              System.out.println(" [x] Received '" + message + "'");
+            }
+          };
+          channel.basicConsume("device-" + this.getId(), true, consumer);
           break;
 
         case 409:
-          // If a device is already registered with the same id, generate a new id and try
-          // again
+          // If a device is already registered with the same id,
+          // generate a new id and try again
           this.randomizeId();
           this.register(url);
           break;
@@ -100,18 +134,19 @@ public class Device {
 
   }
 
-  private String[] setOperations(String device_type) {
+  private List<String> setOperations(String device_type) {
     switch (device_type) {
       case "curtain":
-        return new String[] { "open", "close" };
+        return new ArrayList<String>(Arrays.asList("open", "close"));
       case "air-conditioner":
-        return new String[] { "on", "off" };
+        return new ArrayList<String>(Arrays.asList("on", "off"));
       case "tv":
-        return new String[] { "on", "off", "volume_up", "volume_down", "channel_up", "channel_down" };
+        return new ArrayList<String>(
+            Arrays.asList("on", "off", "volume_up", "volume_down", "channel_up", "channel_down"));
       case "sound-system":
-        return new String[] { "on", "off", "volume_up", "volume_down" };
+        return new ArrayList<String>(Arrays.asList("on", "off", "volume_up", "volume_down"));
       case "light":
-        return new String[] { "on", "off" };
+        return new ArrayList<String>(Arrays.asList("on", "off"));
       default:
         throw new IllegalArgumentException("Invalid device type");
     }

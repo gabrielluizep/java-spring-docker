@@ -1,12 +1,6 @@
 package device;
 
-import java.net.HttpURLConnection;
 import java.net.URL;
-
-import com.google.gson.Gson;
-import com.google.gson.JsonObject;
-
-import device.Device;
 
 public class App {
     public static final String CURTAIN = "curtain";
