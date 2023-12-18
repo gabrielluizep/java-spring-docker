@@ -20,3 +20,16 @@
 - Está usando uma versão muito antiga da Gradle. Opte pela versão 8.4 e JDK 17
 - Lembre-se que o diretório `entrega 04` deverá conter a solução completa, com Docker, código fonte Java, etc.
 - Gitignore tem que ignorar arquivos do gradle
+
+## Entrega 04
+
+- Instruções claras, consegui subir os contêineres e realizar a comunicação
+- Ao alterar a situação da cortina, vi que essa informação foi para a cortina, porém não vi isso sendo refletido ao consumir a API no servidor. Ou seja, não tem qualquer indicação para o cliente sobre a situação dos dispositivos
+
+## Conceito final
+
+- Entrega 1: 10
+- Entrega 2: 10
+- Entrega 3: 10
+- Entrega 4: 10
+- Nota final: 10
