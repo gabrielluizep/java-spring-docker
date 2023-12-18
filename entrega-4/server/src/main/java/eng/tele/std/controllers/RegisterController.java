@@ -18,6 +18,7 @@ import eng.tele.std.entitites.Curtain;
 import eng.tele.std.entitites.Device;
 import eng.tele.std.entitites.Light;
 import eng.tele.std.entitites.SoundSystem;
+import eng.tele.std.entitites.TV;
 
 @RestController
 @RequestMapping(path = "/register", consumes = "application/json")
@@ -55,6 +56,9 @@ public class RegisterController {
         break;
       case "air-conditioner":
         dataStore.addDevice(new AirConditioner(device));
+        break;
+      case "tv":
+        dataStore.addDevice(new TV(device));
         break;
       default:
         return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
