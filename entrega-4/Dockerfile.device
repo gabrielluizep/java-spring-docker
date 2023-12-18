@@ -3,8 +3,18 @@ FROM gradle:8.4.0-jdk17
 RUN mkdir /device
 WORKDIR /device
 
-COPY ./device /device
+COPY device /device
 
 EXPOSE $PORT
 
-CMD ["gradle", "run", "--args="$SERVER_URL $DEVICE_TYPE"]
+ARG SERVER_URL
+ENV SERVER_URL=$SERVER_URL
+
+ARG DEVICE_TYPE
+ENV DEVICE_TYPE=$DEVICE_TYPE
+
+COPY wait-for-it.sh /device/wait-for-it.sh
+
+RUN chmod +x /device/wait-for-it.sh
+
+CMD /device/wait-for-it.sh server:8080 -t 0 -- gradle run --args="$SERVER_URL $DEVICE_TYPE"

@@ -71,6 +71,7 @@ public class DevicesController {
     } catch (Exception e) {
       System.out.println("PUT /devices/" + id + "\n" + "Device with id " + id + " does not support operation "
           + operation);
+      System.out.println(e.toString());
       return ResponseEntity.badRequest().build();
     }
 

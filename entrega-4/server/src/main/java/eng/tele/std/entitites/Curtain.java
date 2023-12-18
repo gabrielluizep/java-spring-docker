@@ -1,6 +1,10 @@
 package eng.tele.std.entitites;
 
-import eng.tele.std.StdApplication;
+import com.rabbitmq.client.Channel;
+import com.rabbitmq.client.Connection;
+import com.rabbitmq.client.ConnectionFactory;
+
+import eng.tele.std.RabbitMqConnection;
 
 public class Curtain extends Device {
   private boolean isOpen;
@@ -16,8 +20,12 @@ public class Curtain extends Device {
   }
 
   public void setOpen(boolean isOpen) throws Exception {
+    ConnectionFactory factory = RabbitMqConnection.getConnectionFactory();
+    Connection connection = factory.newConnection();
+    Channel channel = connection.createChannel();
+
     String message = isOpen ? "open" : "close";
-    StdApplication.channel.basicPublish("", "device-" + getId(), null, message.getBytes());
+    channel.basicPublish("device-" + getId(), "device-" + getId(), null, message.getBytes("UTF-8"));
 
     this.isOpen = isOpen;
   }

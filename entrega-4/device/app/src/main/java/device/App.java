@@ -31,14 +31,23 @@ public class App {
             return;
         }
 
+        System.out.println("Starting device of type " + device_type + " and server " + server_url);
+
         Device device = new Device(device_type);
 
         try {
+            System.out.println("Registering device");
+
             URL url = new URL(server_url + REGISTER_ROUTE);
             device.register(url);
+            // keep process running to receive messages
+            while (true) {
+                Thread.sleep(1000);
+            }
         } catch (Exception e) {
             System.err.println("Device registration failed");
             System.err.println(e);
+            return;
         }
     }
 }

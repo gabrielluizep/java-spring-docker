@@ -1,6 +1,10 @@
 package eng.tele.std.entitites;
 
-import eng.tele.std.StdApplication;
+import com.rabbitmq.client.Channel;
+import com.rabbitmq.client.Connection;
+import com.rabbitmq.client.ConnectionFactory;
+
+import eng.tele.std.RabbitMqConnection;
 
 public class AirConditioner extends Device {
   private int temperature;
@@ -16,26 +20,33 @@ public class AirConditioner extends Device {
   }
 
   public void setTemperature(int temperature) throws Exception {
+    ConnectionFactory factory = RabbitMqConnection.getConnectionFactory();
+    Connection connection = factory.newConnection();
+    Channel channel = connection.createChannel();
+
     String message = "setTemperature-" + temperature;
-    StdApplication.channel.basicPublish("", "device-" + getId(), null, message.getBytes());
+    channel.basicPublish("device-" + this.getId(), "device-" + this.getId(), null, message.getBytes("UTF-8"));
 
     this.temperature = temperature;
   }
 
   @Override
   public void executeOperation(String operation) throws Exception {
-    switch (operation) {
-      case "turnOn":
-        setOn(true);
-        break;
-      case "turnOff":
-        setOn(false);
-        break;
-      case "setTemperature":
-        setTemperature(Integer.parseInt(operation.split(" ")[1]));
-        break;
-      default:
-        throw new IllegalArgumentException("Invalid operation: " + operation);
+    if (operation.equals("turnOn")) {
+      setOn(true);
+      return;
     }
+
+    if (operation.equals("turnOff")) {
+      setOn(false);
+      return;
+    }
+
+    if (operation.startsWith("setTemperature-")) {
+      setTemperature(Integer.parseInt(operation.split("-")[1]));
+      return;
+    }
+
+    throw new IllegalArgumentException("Invalid operation: " + operation);
   }
 }

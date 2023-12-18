@@ -3,8 +3,9 @@ FROM gradle:8.4.0-jdk17
 RUN mkdir /server
 WORKDIR /server
 
-COPY ./server /server
+COPY server /server
 
-EXPOSE $PORT
+COPY wait-for-it.sh /usr/local/bin/wait-for-it.sh
+RUN chmod +x /usr/local/bin/wait-for-it.sh
 
-CMD ["gradle", "bootRun"]
+CMD /usr/local/bin/wait-for-it.sh rabbitmq:5672 -- gradle bootRun

@@ -34,7 +34,7 @@ public abstract class RabbitMqConnection {
   }
 
   private static void loadProperties() {
-    try (InputStream input = RabbitMqConnection.class.getClassLoader().getResourceAsStream("conexao.properties")) {
+    try (InputStream input = RabbitMqConnection.class.getClassLoader().getResourceAsStream("connection.properties")) {
       properties.load(input);
     } catch (Exception e) {
       System.err.println(e.toString());

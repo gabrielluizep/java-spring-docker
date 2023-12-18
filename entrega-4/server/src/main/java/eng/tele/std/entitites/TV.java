@@ -1,6 +1,10 @@
 package eng.tele.std.entitites;
 
-import eng.tele.std.StdApplication;
+import com.rabbitmq.client.Channel;
+import com.rabbitmq.client.Connection;
+import com.rabbitmq.client.ConnectionFactory;
+
+import eng.tele.std.RabbitMqConnection;
 
 public class TV extends Device {
   private int volume;
@@ -22,36 +26,49 @@ public class TV extends Device {
   }
 
   public void setVolume(int volume) throws Exception {
+    ConnectionFactory factory = RabbitMqConnection.getConnectionFactory();
+    Connection connection = factory.newConnection();
+    Channel channel = connection.createChannel();
+
     String message = "setVolume-" + volume;
-    StdApplication.channel.basicPublish("", "device-" + getId(), null, message.getBytes());
+    channel.basicPublish("", "device-" + getId(), null, message.getBytes("UTF-8"));
 
     this.volume = volume;
   }
 
   public void setChannel(int channel) throws Exception {
+    ConnectionFactory factory = RabbitMqConnection.getConnectionFactory();
+    Connection connection = factory.newConnection();
+    Channel brokerChannel = connection.createChannel();
+
     String message = "setChannel-" + channel;
-    StdApplication.channel.basicPublish("", "device-" + getId(), null, message.getBytes());
+    brokerChannel.basicPublish("device-" + this.getId(), "device-" + this.getId(), null, message.getBytes("UTF-8"));
 
     this.channel = channel;
   }
 
   @Override
   public void executeOperation(String operation) throws Exception {
-    switch (operation) {
-      case "turnOn":
-        setOn(true);
-        break;
-      case "turnOff":
-        setOn(false);
-        break;
-      case "setVolume":
-        setVolume(Integer.parseInt(operation.split(" ")[1]));
-        break;
-      case "setChannel":
-        setChannel(Integer.parseInt(operation.split(" ")[1]));
-        break;
-      default:
-        throw new IllegalArgumentException("Invalid operation: " + operation);
+    if (operation.equals("turnOn")) {
+      setOn(true);
+      return;
     }
+
+    if (operation.equals("turnOff")) {
+      setOn(false);
+      return;
+    }
+
+    if (operation.startsWith("setVolume-")) {
+      setVolume(Integer.parseInt(operation.split("-")[1]));
+      return;
+    }
+
+    if (operation.startsWith("setChannel-")) {
+      setChannel(Integer.parseInt(operation.split("-")[1]));
+      return;
+    }
+
+    throw new IllegalArgumentException("Invalid operation: " + operation);
   }
 }

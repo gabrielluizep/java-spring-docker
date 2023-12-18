@@ -7,53 +7,67 @@ services:
       - "15672:15672"
   server:
     container_name: server
+    depends_on:
+      - rabbitmq
+    ports:
+      - "8080:8080"
     build:
       context: .
       dockerfile: Dockerfile.server
       args:
-        - "PORT=8080"
+        PORT: "8080"
   curtain:
     container_name: curtain
+    depends_on:
+      - rabbitmq
+      - server
     build:
       context: .
       dockerfile: Dockerfile.device
       args:
-        - "PORT=8080"
-        - "SERVER_URL=http://server:8080"
-        - "DEVICE_TYPE=curtain"
+        SERVER_URL: http://server:8080
+        DEVICE_TYPE: curtain
   air-conditioner:
     container_name: air-conditioner
+    depends_on:
+      - rabbitmq
+      - server
     build:
       context: .
       dockerfile: Dockerfile.device
       args:
-        - "PORT=8080"
-        - "SERVER_URL=http://server:8080"
-        - "DEVICE_TYPE=air-conditioner"
+        SERVER_URL: http://server:8080
+        DEVICE_TYPE: air-conditioner
   tv:
     container_name: tv
+    depends_on:
+      - rabbitmq
+      - server
     build:
       context: .
       dockerfile: Dockerfile.device
       args:
-        - "PORT=8080"
-        - "SERVER_URL=http://server:8080"
-        - "DEVICE_TYPE=tv"
+        SERVER_URL: http://server:8080
+        DEVICE_TYPE: tv
   sound-system:
     container_name: sound-system
+    depends_on:
+      - rabbitmq
+      - server
     build:
       context: .
       dockerfile: Dockerfile.device
       args:
-        - "PORT=8080"
-        - "SERVER_URL=http://server:8080"
-        - "DEVICE_TYPE=sound-system"
+        SERVER_URL: http://server:8080
+        DEVICE_TYPE: sound-system
   light:
     container_name: light
+    depends_on:
+      - rabbitmq
+      - server
     build:
       context: .
       dockerfile: Dockerfile.device
       args:
-        - "PORT=8080"
-        - "SERVER_URL=http://server:8080"
-        - "DEVICE_TYPE=light"
+        SERVER_URL: http://server:8080
+        DEVICE_TYPE: light

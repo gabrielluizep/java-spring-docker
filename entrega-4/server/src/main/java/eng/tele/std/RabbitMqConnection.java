@@ -30,11 +30,12 @@ public abstract class RabbitMqConnection {
       factory.setPassword(properties.getProperty("password"));
       factory.setVirtualHost(properties.getProperty("virtualhost"));
     }
+
     return factory;
   }
 
   private static void loadProperties() {
-    try (InputStream input = RabbitMqConnection.class.getClassLoader().getResourceAsStream("conexao.properties")) {
+    try (InputStream input = RabbitMqConnection.class.getClassLoader().getResourceAsStream("connection.properties")) {
       properties.load(input);
     } catch (Exception e) {
       System.err.println(e.toString());

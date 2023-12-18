@@ -4,7 +4,11 @@ import java.util.List;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
-import eng.tele.std.StdApplication;
+import com.rabbitmq.client.Channel;
+import com.rabbitmq.client.Connection;
+import com.rabbitmq.client.ConnectionFactory;
+
+import eng.tele.std.RabbitMqConnection;
 
 public class Device {
   private int id;
@@ -38,8 +42,12 @@ public class Device {
   }
 
   public void setOn(boolean isOn) throws Exception {
+    ConnectionFactory factory = RabbitMqConnection.getConnectionFactory();
+    Connection connection = factory.newConnection();
+    Channel channel = connection.createChannel();
+
     String message = isOn ? "turnOn" : "turnOff";
-    StdApplication.channel.basicPublish("", "device-" + id, null, message.getBytes());
+    channel.basicPublish("device-" + this.getId(), "device-" + this.getId(), null, message.getBytes("UTF-8"));
 
     this.isOn = isOn;
   }
